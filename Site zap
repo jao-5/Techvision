@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Loja de Artigos de TI</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+    nav {
+      background-color: #1f2937;
+      padding: 1em;
+      display: flex;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav a {
+      color: white;
+      margin: 0 20px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #3b82f6;
+    }
+
+    .section {
+      display: none;
+      padding: 2em;
+    }
+    .active {
+      display: block;
+    }
+
+    .banner {
+      text-align: center;
+      padding: 3em 1em;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+    }
+
+    .produto {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 1em;
+      margin: 1em;
+      display: inline-block;
+      width: 200px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+    }
+    .produto:hover {
+      transform: translateY(-5px);
+    }
+    .produto img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input[type="submit"], button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    input[type="submit"]:hover, button:hover {
+      background-color: #2563eb;
+    }
+
+    #perfil {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 1em;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 1em;
+      background: #f3f4f6;
+      border: none;
+      cursor: pointer;
+    }
+    .tabs button.activeTab {
+      background: #3b82f6;
+      color: white;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.activeTab {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a onclick="showSection('home')">Início</a>
+  <a onclick="showSection('produtos')">Produtos</a>
+  <a onclick="showSection('login')">Login</a>
+  <a onclick="showSection('cadastro')">Cadastro</a>
+</nav>
+
+<div id="home" class="section active">
+  <div class="banner">
+    <h1>Bem-vindo à Loja de TI</h1>
+    <p>Os melhores artigos de tecnologia estão aqui.</p>
+  </div>
+</div>
+
+<div id="login" class="section">
+  <h2>Login</h2>
+  <form onsubmit="loginUser(event)">
+    <input type="email" placeholder="Email" required>
+    <input type="password" placeholder="Senha" required>
+    <input type="submit" value="Entrar">
+  </form>
+</div>
+
+<div id="cadastro" class="section">
+  <h2>Cadastro</h2>
+  <form onsubmit="cadastrarUsuario(event)">
+    <input type="text" placeholder="Nome" required>
+    <input type="email" placeholder="Email" required>
+    <input type="password" placeholder="Senha" required>
+    <input type="submit" value="Cadastrar">
+  </form>
+</div>
+
+<div id="produtos" class="section">
+  <h2>Produtos em destaque</h2>
+  <div class="produto" onclick="mostrarDetalhe('Notebook Gamer', 'Notebook com i7, 16GB RAM, SSD 512GB, RTX 3060', '5000')">
+    <img src="https://via.placeholder.com/200" alt="Notebook Gamer">
+    <h3>Notebook Gamer</h3>
+    <p>R$ 5.000</p>
+  </div>
+  <div class="produto" onclick="mostrarDetalhe('Mouse Óptico', 'Mouse óptico com DPI ajustável', '100')">
+    <img src="https://via.placeholder.com/200" alt="Mouse">
+    <h3>Mouse Óptico</h3>
+    <p>R$ 100</p>
+  </div>
+</div>
+
+<div id="detalhes" class="section">
+  <h2 id="tituloProduto">Detalhes do Produto</h2>
+  <img id="imgProduto" src="https://via.placeholder.com/400" alt="Produto">
+  <p id="descricaoProduto"></p>
+  <p id="precoProduto"></p>
+  <button onclick="alert('Produto adicionado ao carrinho!')">Comprar</button>
+</div>
+
+<div id="perfil" class="section">
+  <h2>Perfil do Usuário</h2>
+  <div class="tabs">
+    <button onclick="mudarAba('dados')" class="activeTab">Meus Dados</button>
+    <button onclick="mudarAba('pedidos')">Meus Pedidos</button>
+  </div>
+  <div id="dados" class="tab-content activeTab">
+    <p><strong>Nome:</strong> João da Silva</p>
+    <p><strong>Email:</strong> joao@email.com</p>
+  </div>
+  <div id="pedidos" class="tab-content">
+    <p>Você ainda não realizou pedidos.</p>
+  </div>
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function loginUser(event) {
+    event.preventDefault();
+    alert("Login efetuado com sucesso!");
+    showSection('perfil');
+  }
+
+  function cadastrarUsuario(event) {
+    event.preventDefault();
+    alert("Cadastro realizado com sucesso!");
+    showSection('home');
+  }
+
+  function mostrarDetalhe(nome, descricao, preco) {
+    document.getElementById('tituloProduto').innerText = nome;
+    document.getElementById('descricaoProduto').innerText = "Descrição: " + descricao;
+    document.getElementById('precoProduto').innerText = "Preço: R$ " + preco;
+    document.getElementById('imgProduto').src = "https://via.placeholder.com/400";
+    showSection('detalhes');
+  }
+
+  function mudarAba(id) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('activeTab'));
+    document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('activeTab'));
+    document.getElementById(id).classList.add('activeTab');
+    event.target.classList.add('activeTab');
+  }
+</script>
+
+</body>
+</html>
