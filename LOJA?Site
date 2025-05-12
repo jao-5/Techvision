@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Techvision</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+    header {
+      background-color: #1f2937;
+      padding: 1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0; z-index: 1000;
+    }
+    .menu-toggle {
+      background: none; border: none;
+      color: white; font-size: 1.5em;
+      cursor: pointer;
+    }
+    .menu-items {
+      display: none;
+      flex-direction: column;
+      background: #1f2937;
+      position: absolute;
+      top: 60px; right: 0;
+      width: 200px;
+    }
+    .menu-items a {
+      color: white; padding: 10px;
+      text-decoration: none;
+      border-bottom: 1px solid #444;
+    }
+    .menu-items a:hover { background: #3b82f6; }
+    .show-menu { display: flex; }
+
+    .section {
+      display: none;
+      padding: 2em;
+    }
+    .active { display: block; }
+
+    .banner {
+      text-align: center;
+      padding: 3em 1em;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+    }
+    .ofertas {
+      display: flex;
+      overflow-x: auto;
+      padding: 1em;
+      gap: 1em;
+    }
+    .produto {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 1em;
+      min-width: 200px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      height: 300px;
+      justify-content: space-between;
+    }
+    .produto:hover { transform: translateY(-5px); }
+    .produto img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .produto button {
+      padding: 10px 20px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background 0.3s;
+      width: 100%;
+    }
+    .produto button:hover {
+      background-color: #2563eb;
+    }
+
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input[type="submit"], button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    input[type="submit"]:hover, button:hover {
+      background-color: #2563eb;
+    }
+
+    #carrinhoLista li {
+      list-style: none;
+      padding: 5px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2em;
+      background: #1f2937;
+      color: white;
+    }
+
+    #selecaoTipoUsuario {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    #selecaoTipoUsuario div {
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #selecaoTipoUsuario button {
+      margin: 1em;
+      padding: 1em 2em;
+    }
+
+    .add-product-btn {
+      background-color: #34d399;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    .edit-product-btn {
+      background-color: #fbbf24;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    /* MODAL */
+    #modalAdicionarProduto {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+    #modalAdicionarProduto .modal-content {
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    #modalAdicionarProduto h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    #modalAdicionarProduto input[type="submit"] {
+      background-color: #34d399;
+    }
+    #modalAdicionarProduto button.cancelar {
+      background-color: #f87171;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="selecaoTipoUsuario">
+    <div>
+      <h2>Entrar como:</h2>
+      <button onclick="entrarComo('cliente')">Cliente</button>
+      <button onclick="entrarComo('vendedor')">Vendedor</button>
+    </div>
+  </div>
+
+  <header>
+    <h2 style="color: rgb(0, 0, 0);">Techvision</h2>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="menu-items" id="menuItems">
+      <a onclick="showSection('home')">Início</a>
+      <a onclick="showSection('produtos')">Produtos</a>
+      <a onclick="showSection('login')">Login</a>
+      <a onclick="showSection('cadastro')">Cadastro</a>
+      <a id="venderMenu" onclick="showSection('vender')">Vender</a>
+      <a onclick="showSection('carrinho')">Carrinho</a>
+    </div>
+  </header>
+
+  <div id="home" class="section active">
+    <div class="banner">
+      <h1>Bem-vindo à Techvision</h1>
+      <p>Confira nossas ofertas imperdíveis!</p>
+    </div>
+    <div class="ofertas" id="ofertas"></div>
+  </div>
+
+  <div id="login" class="section">
+    <h2>Login</h2>
+    <form onsubmit="loginUser(event)">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Senha" required>
+      <input type="submit" value="Entrar">
+    </form>
+  </div>
+
+  <div id="cadastro" class="section">
+    <h2>Cadastro</h2>
+    <form onsubmit="cadastrarUsuario(event)">
+      <input type="text" placeholder="Nome" required>
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Senha" required>
+      <input type="text" placeholder="Endereço" required>
+      <input type="text" placeholder="CPF" required>
+      <input type="submit" value="Cadastrar">
+    </form>
+  </div>
+
+  <div id="produtos" class="section">
+    <h2>Produtos</h2>
+    <div id="listaProdutos" class="ofertas"></div>
+  </div>
+
+  <div id="vender" class="section">
+    <h2>Editar Ofertas</h2>
+    <div id="ofertasVendedor" class="ofertas"></div>
+    <button class="add-product-btn" onclick="adicionarProduto()">Adicionar Produto</button>
+  </div>
+
+  <div id="carrinho" class="section">
+    <h2>Carrinho de Compras</h2>
+    <ul id="carrinhoLista"></ul>
+    <p><strong>Total: R$ <span id="totalCarrinho">0</span></strong></p>
+    <button onclick="finalizarCompra()">Finalizar Compra</button>
+  </div>
+
+  <footer>
+    &copy; 2025 Loja Techvision. Todos os direitos reservados.
+  </footer>
+
+  <!-- MODAL ADICIONAR PRODUTO -->
+  <div id="modalAdicionarProduto">
+    <div class="modal-content">
+      <h2>Adicionar Produto</h2>
+      <form id="formAdicionarProduto" onsubmit="salvarNovoProduto(event)">
+        <input type="text" id="novoNome" placeholder="Nome do produto" required>
+        <input type="text" id="novaDescricao" placeholder="Descrição" required>
+        <input type="number" step="0.01" id="novoPreco" placeholder="Preço (R$)" required>
+        <input type="url" id="novaImagem" placeholder="URL da imagem" required>
+        <input type="submit" value="Salvar Produto">
+        <button type="button" class="cancelar" onclick="fecharModal()">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let produtos = [
+      { nome: 'Notebook Gamer', descricao: 'i7, 16GB, SSD, RTX 3060', preco: 5000, imagem: 'https://images9.kabum.com.br/produtos/fotos/269039/notebook-gamer-gigabyte-aero-15-intel-core-i7-11800h-rtx-3060-p-16gb-ssd-512gb-15-6-oled-4k-uhd-windows-10-pro-kd-72br623sp_1642789632_g.jpg' },
+      { nome: 'Mouse Óptico', descricao: 'DPI ajustável', preco: 100, imagem: 'https://minipreco.vtexassets.com/arquivos/ids/185239/303e7b81-6134-4188-b376-dc3114fe730b.jpg?v=638278779221130000' },
+      { nome: 'Teclado Mecânico', descricao: 'RGB, switches azuis', preco: 350, imagem: 'https://m.media-amazon.com/images/I/61Tn5a431IL.jpg' },
+      { nome: 'Monitor 144Hz', descricao: 'Full HD, 27 polegadas', preco: 1500, imagem: 'https://images.kabum.com.br/produtos/fotos/113007/monitor-gamer-led-asus-tuf-gaming-27-full-hd-ips-hdmi-displayport-freesync-144hz-1ms-vg279q1r_1594665333_gg.jpg' },
+      { nome: 'Fone de Ouvido', descricao: 'Som surround, confortável', preco: 200, imagem: 'https://www.logitechstore.com.br/media/catalog/product/cache/105e6f420716e0751863c4b81f527d17/h/e/headseat-g-pro-3_2.png' }
+    ];
+    let carrinho = [];
+    let isVendedor = false;
+
+    function toggleMenu() {
+      document.getElementById('menuItems').classList.toggle('show-menu');
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function loginUser(event) {
+      event.preventDefault();
+      alert("Login efetuado com sucesso!");
+      showSection('home');
+    }
+
+    function cadastrarUsuario(event) {
+      event.preventDefault();
+      alert("Cadastro realizado com sucesso!");
+      showSection('home');
+    }
+
+    function entrarComo(tipo) {
+      document.getElementById('selecaoTipoUsuario').style.display = 'none';
+      isVendedor = tipo === 'vendedor';
+      document.getElementById('venderMenu').style.display = isVendedor ? 'block' : 'none';
+      listarProdutos();
+      editarOfertas();
+      showSection('home');
+    }
+
+    function listarProdutos() {
+      const lista = document.getElementById('listaProdutos');
+      const ofertas = document.getElementById('ofertas');
+      lista.innerHTML = '';
+      ofertas.innerHTML = '';
+      produtos.forEach((prod, index) => {
+        const div = document.createElement('div');
+        div.className = 'produto';
+        div.innerHTML = `
+          <img src="${prod.imagem}" alt="${prod.nome}">
+          <h3>${prod.nome}</h3>
+          <p>${prod.descricao}</p>
+          <p>R$ ${prod.preco}</p>
+          <button onclick="adicionarCarrinho('${prod.nome}')">Comprar</button>
+        `;
+        lista.appendChild(div.cloneNode(true));
+        ofertas.appendChild(div);
+      });
+    }
+
+    function adicionarProduto() {
+      document.getElementById('modalAdicionarProduto').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modalAdicionarProduto').style.display = 'none';
+      document.getElementById('formAdicionarProduto').reset();
+    }
+
+    function salvarNovoProduto(event) {
+      event.preventDefault();
+      const nome = document.getElementById('novoNome').value;
+      const descricao = document.getElementById('novaDescricao').value;
+      const preco = parseFloat(document.getElementById('novoPreco').value);
+      const imagem = document.getElementById('novaImagem').value;
+
+      if (nome && descricao && preco && imagem) {
+        produtos.push({ nome, descricao, preco, imagem });
+        listarProdutos();
+        editarOfertas();
+        fecharModal();
+        alert("Produto adicionado com sucesso!");
+      }
+    }
+
+    function editarOfertas() {
+      const lista = document.getElementById('ofertasVendedor');
+      lista.innerHTML = '';
+      if (!isVendedor) return;
+      produtos.forEach((prod, index) => {
+        const div = document.createElement('div');
+        div.className = 'produto';
+        div.innerHTML = `
+          <img src="${prod.imagem}" alt="${prod.nome}">
+          <h3>${prod.nome}</h3>
+          <p>${prod.descricao}</p>
+          <p>R$ ${prod.preco}</p>
+          <button onclick="editarProduto(${index})">Editar</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function editarProduto(index) {
+      const prod = produtos[index];
+      const nome = prompt("Novo nome:", prod.nome);
+      const descricao = prompt("Nova descrição:", prod.descricao);
+      const preco = parseFloat(prompt("Novo preço:", prod.preco));
+      if (nome && descricao && preco) {
+        produtos[index] = { ...prod, nome, descricao, preco };
+        editarOfertas();
+        listarProdutos();
+      }
+    }
+
+    function adicionarCarrinho(nome) {
+      const produto = produtos.find(p => p.nome === nome);
+      if (produto) {
+        carrinho.push(produto);
+        atualizarCarrinho();
+        alert("Produto adicionado ao carrinho!");
+      }
+    }
+
+    function atualizarCarrinho() {
+      const lista = document.getElementById('carrinhoLista');
+      const total = document.getElementById('totalCarrinho');
+      lista.innerHTML = '';
+      let soma = 0;
+      carrinho.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.nome} - R$ ${item.preco}`;
+        lista.appendChild(li);
+        soma += item.preco;
+      });
+      total.textContent = soma.toFixed(2);
+    }
+
+    function finalizarCompra() {
+      if (carrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+      }
+      alert("Compra finalizada com sucesso!");
+      carrinho = [];
+      atualizarCarrinho();
+    }
+  </script>
+
+</body>
+</html>
